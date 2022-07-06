@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.*;
 
 public class Cliente {
@@ -48,7 +49,7 @@ class LaminaMarcoCliente extends JPanel {
 
   add(texto);
 
-  ip = new JTextField(5);
+  ip = new JTextField(8);
 
   add(ip);
 
@@ -113,7 +114,7 @@ class LaminaMarcoCliente extends JPanel {
 
 }
 
-class PaqueteEnvio {
+class PaqueteEnvio implements Serializable {
  
  private String nick, ip, mensaje;
 
