@@ -5,8 +5,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 public class Servidor {
+ 
  public static void main(String[] args) {
 
   MarcoServidor mimarco = new MarcoServidor();
@@ -51,6 +53,8 @@ class MarcoServidor extends JFrame implements Runnable {
 
    String nick, ip, mensaje;
 
+   ArrayList <String>  listaIp = new ArrayList<String>();
+
    PaqueteEnvio paquete_recibido;
 
    while (true) {
@@ -66,27 +70,48 @@ class MarcoServidor extends JFrame implements Runnable {
     ip = paquete_recibido.getIp();
 
     mensaje = paquete_recibido.getMensaje();
+
     /*DataInputStream flujo_entrada = new DataInputStream(miSocket.getInputStream());
     
     String mensaje_texto = flujo_entrada.readUTF();
     
     areatexto.append("\n" + mensaje_texto);*/
-    
-    areatexto.append("\n" + nick + ":" + mensaje + " para " + ip);
-    
-    //Creo un puente de comunicacion por donde fluiran los datos
-    Socket enviaDestinatario = new Socket(ip, 9090);
-    //Crear en el servidor un objeto objectoutputstream para poder enviar el paquete a traves del socket
-    ObjectOutputStream paqueteReenvio = new ObjectOutputStream(enviaDestinatario.getOutputStream());
-    //se envia el paquete que se recibio
-    paqueteReenvio.writeObject(paquete_recibido);
-    //Se cierra el flujo de datos
-    paqueteReenvio.close();
-    //una vez que el paquete llega a su destino se cierra el socket
-    enviaDestinatario.close();
 
-    miSocket.close();
+    if (!mensaje.equals(" online")) {
+     
+     
+     areatexto.append("\n" + nick + ":" + mensaje + " para " + ip);
+     
+     //Creo un puente de comunicacion por donde fluiran los datos
+     Socket enviaDestinatario = new Socket(ip, 9090);
+     //Crear en el servidor un objeto objectoutputstream para poder enviar el paquete a traves del socket
+     ObjectOutputStream paqueteReenvio = new ObjectOutputStream(enviaDestinatario.getOutputStream());
+     //se envia el paquete que se recibio
+     paqueteReenvio.writeObject(paquete_recibido);
+     //Se cierra el flujo de datos
+     paqueteReenvio.close();
+     //una vez que el paquete llega a su destino se cierra el socket
+     enviaDestinatario.close();
+     
+     miSocket.close();
+     
+    } else {
+     //---------------- Detecta Online----------------------
 
+     InetAddress localizacion = miSocket.getInetAddress();
+
+     String ipRemota = localizacion.getHostAddress();
+
+     System.out.println("Online: " + ipRemota);
+
+     listaIp.add(ipRemota);
+
+     for (String z : listaIp) {
+      System.out.println("Array: " + z);
+     }
+
+     //----------------------------------------------------
+    }
    }
 
   } catch (IOException | ClassNotFoundException e) {

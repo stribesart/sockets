@@ -3,7 +3,6 @@ package set.sockets;
 import javax.swing.*;
 
 import java.awt.event.*;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,13 +25,36 @@ class MarcoCliente extends JFrame {
  public MarcoCliente() {
 
   setBounds(600, 300, 280, 350);
-  
+
   LaminaMarcoCliente milamina = new LaminaMarcoCliente();
-  
+
   add(milamina);
-  
+
   setVisible(true);
- 
+
+  addWindowListener(new EnvioOnline());
+
+ }
+}
+
+class EnvioOnline extends WindowAdapter {
+ public void windowOpened(WindowEvent w) {
+  try {
+   Socket miSocket = new Socket("192.168.1.164", 9999);
+
+   PaqueteEnvio datos = new PaqueteEnvio();
+
+   datos.setMensaje(" online");
+
+   ObjectOutputStream paquete_datos = new ObjectOutputStream(miSocket.getOutputStream());
+
+   paquete_datos.writeObject(datos);
+
+   miSocket.close();
+
+  } catch (Exception e) {
+   //TODO: handle exception
+  }
  }
 }
 
@@ -40,17 +62,28 @@ class MarcoCliente extends JFrame {
  * LaminaMarcoCliente extends JPanel
  */
 class LaminaMarcoCliente extends JPanel implements Runnable {
-
+ 
  public LaminaMarcoCliente() {
 
-  nick = new JTextField(5);
+  String nick_usuario = JOptionPane.showInputDialog("Nick: ");
+
+  JLabel n_nick = new JLabel("Nick: ");
+ 
+  add(n_nick);
+  
+  nick = new JLabel();
+
+  nick.setText(nick_usuario);
+
   add(nick);
   
-  JLabel texto = new JLabel("-CHAT-");
+  JLabel texto = new JLabel("Online: ");
 
   add(texto);
 
-  ip = new JTextField(8);
+  ip = new JComboBox();
+
+  ip.addItem("192.168.1.164");
 
   add(ip);
 
@@ -79,6 +112,9 @@ class LaminaMarcoCliente extends JPanel implements Runnable {
  private class EnviaTexto implements ActionListener {
   public void actionPerformed(ActionEvent e) {
    // System.out.println("Hola evento");
+
+   campochat.append("\n"+"yo: "+campo1.getText());
+
    try {
     //Se abre el socket
     Socket miSocket = new Socket("192.168.1.64", 9999);
@@ -87,7 +123,7 @@ class LaminaMarcoCliente extends JPanel implements Runnable {
 
     datos.setNick(nick.getText());
 
-    datos.setIp(ip.getText());
+    datos.setIp(ip.getSelectedItem().toString());
 
     datos.setMensaje(campo1.getText());
     //Se crea el flujo para poder enviar el paquete al destinatario
@@ -111,7 +147,11 @@ class LaminaMarcoCliente extends JPanel implements Runnable {
   }
  }
  
- private JTextField campo1, nick, ip;
+ private JTextField campo1;
+
+ private JComboBox ip;
+
+ private JLabel nick;
  
  private JTextArea campochat;
 
