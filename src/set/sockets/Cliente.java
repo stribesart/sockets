@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.*;
 
 public class Cliente {
@@ -40,9 +41,20 @@ class LaminaMarcoCliente extends JPanel {
 
  public LaminaMarcoCliente() {
 
-  JLabel texto = new JLabel("CLIENTE");
+  nick = new JTextField(5);
+  add(nick);
+  
+  JLabel texto = new JLabel("-CHAT-");
 
   add(texto);
+
+  ip = new JTextField(5);
+
+  add(ip);
+
+  campochat = new JTextArea(12, 20);
+
+  add(campochat);
 
   campo1 = new JTextField(20);
 
@@ -62,14 +74,28 @@ class LaminaMarcoCliente extends JPanel {
   public void actionPerformed(ActionEvent e) {
    // System.out.println("Hola evento");
    try {
-    
+    //Se abre el socket
     Socket miSocket = new Socket("192.168.1.64", 9999);
+    //Se crea un paquete de datos
+    PaqueteEnvio datos = new PaqueteEnvio();
 
-    DataOutputStream flujo_salida = new DataOutputStream(miSocket.getOutputStream());
+    datos.setNick(nick.getText());
+
+    datos.setIp(ip.getText());
+
+    datos.setMensaje(campo1.getText());
+    //Se crea el flujo para poder enviar el paquete al destinatario
+    ObjectOutputStream paquete_datos = new ObjectOutputStream(miSocket.getOutputStream());
+
+    paquete_datos.writeObject(datos);
+
+    miSocket.close();
+
+    /*DataOutputStream flujo_salida = new DataOutputStream(miSocket.getOutputStream());
 
     flujo_salida.writeUTF(campo1.getText());
     
-    flujo_salida.close();
+    flujo_salida.close();*/
 
    } catch (UnknownHostException e1) {
     e1.printStackTrace();
@@ -79,8 +105,40 @@ class LaminaMarcoCliente extends JPanel {
   }
  }
  
- private JTextField campo1;
+ private JTextField campo1, nick, ip;
  
+ private JTextArea campochat;
+
  private JButton miboton;
+
+}
+
+class PaqueteEnvio {
+ 
+ private String nick, ip, mensaje;
+
+ public String getNick() {
+  return nick;
+ }
+
+ public void setNick( String nick) {
+  this.nick = nick;
+ }
+
+ public String getIp() {
+  return ip;
+ }
+
+ public void setIp(String ip) {
+  this.ip = ip;
+ }
+
+ public String getMensaje() {
+  return mensaje;
+ }
+
+ public void setMensaje(String mensaje) {
+  this.mensaje = mensaje;
+ }
 
 }
