@@ -72,7 +72,18 @@ class MarcoServidor extends JFrame implements Runnable {
     
     areatexto.append("\n" + mensaje_texto);*/
     
-    areatexto.append("\n"+nick+":"+mensaje+" para "+ip);
+    areatexto.append("\n" + nick + ":" + mensaje + " para " + ip);
+    
+    //Creo un puente de comunicacion por donde fluiran los datos
+    Socket enviaDestinatario = new Socket(ip, 9090);
+    //Crear en el servidor un objeto objectoutputstream para poder enviar el paquete a traves del socket
+    ObjectOutputStream paqueteReenvio = new ObjectOutputStream(enviaDestinatario.getOutputStream());
+    //se envia el paquete que se recibio
+    paqueteReenvio.writeObject(paquete_recibido);
+    //Se cierra el flujo de datos
+    paqueteReenvio.close();
+    //una vez que el paquete llega a su destino se cierra el socket
+    enviaDestinatario.close();
 
     miSocket.close();
 

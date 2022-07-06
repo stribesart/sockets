@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.*;
@@ -38,7 +39,7 @@ class MarcoCliente extends JFrame {
 /**
  * LaminaMarcoCliente extends JPanel
  */
-class LaminaMarcoCliente extends JPanel {
+class LaminaMarcoCliente extends JPanel implements Runnable {
 
  public LaminaMarcoCliente() {
 
@@ -68,6 +69,10 @@ class LaminaMarcoCliente extends JPanel {
   miboton.addActionListener(mievento);
 
   add(miboton);
+
+  Thread miHilo = new Thread(this);
+
+  miHilo.start();
 
  }
 
@@ -111,6 +116,36 @@ class LaminaMarcoCliente extends JPanel {
  private JTextArea campochat;
 
  private JButton miboton;
+
+ @Override
+ public void run() {
+  // TODO Auto-generated method stub
+  try {
+
+   ServerSocket recibe_destinatario = new ServerSocket(9090);
+
+   Socket cliente;
+
+   PaqueteEnvio paqueteRecibido;
+
+   while (true) {
+    
+    cliente = recibe_destinatario.accept();
+
+    ObjectInputStream datosEntrada = new ObjectInputStream(cliente.getInputStream());
+
+    paqueteRecibido = (PaqueteEnvio) datosEntrada.readObject();
+
+    campochat.append("\n"+paqueteRecibido.getNick()+":"+paqueteRecibido.getMensaje());
+
+   }
+   
+  } catch (Exception e) {
+   //TODO: handle exception
+
+   System.out.println(e.getMessage());
+  }
+ }
 
 }
 
