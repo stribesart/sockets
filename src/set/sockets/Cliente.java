@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.*;
+import java.util.ArrayList;
 
 public class Cliente {
  public static void main(String[] args){
@@ -38,8 +39,10 @@ class MarcoCliente extends JFrame {
 }
 
 class EnvioOnline extends WindowAdapter {
- public void windowOpened(WindowEvent w) {
+ public void windowOpened(WindowEvent e) {
   try {
+   System.out.println("entro a envio online");
+
    Socket miSocket = new Socket("192.168.1.164", 9999);
 
    PaqueteEnvio datos = new PaqueteEnvio();
@@ -52,7 +55,7 @@ class EnvioOnline extends WindowAdapter {
 
    miSocket.close();
 
-  } catch (Exception e) {
+  } catch (Exception e2) {
    //TODO: handle exception
   }
  }
@@ -82,8 +85,6 @@ class LaminaMarcoCliente extends JPanel implements Runnable {
   add(texto);
 
   ip = new JComboBox();
-
-  ip.addItem("192.168.1.164");
 
   add(ip);
 
@@ -176,8 +177,20 @@ class LaminaMarcoCliente extends JPanel implements Runnable {
 
     paqueteRecibido = (PaqueteEnvio) datosEntrada.readObject();
 
-    campochat.append("\n"+paqueteRecibido.getNick()+":"+paqueteRecibido.getMensaje());
+    if (!paqueteRecibido.getMensaje().equals(" online")) {
+     campochat.append("\n" + paqueteRecibido.getNick() + ":" + paqueteRecibido.getMensaje());
+    } else {
+     // campochat.append("\n"+paqueteRecibido.getips());
+     ArrayList<String> IpsMenu = new ArrayList<String>();
 
+     IpsMenu = paqueteRecibido.getips();
+
+     ip.removeAllItems();
+
+     for (String z : IpsMenu) {
+      ip.addItem(z);
+     }
+    }
    }
    
   } catch (Exception e) {
@@ -192,6 +205,16 @@ class LaminaMarcoCliente extends JPanel implements Runnable {
 class PaqueteEnvio implements Serializable {
  
  private String nick, ip, mensaje;
+
+ private ArrayList<String> ips;
+
+ public ArrayList<String> getips() {
+  return ips;
+ }
+
+ public void setips(ArrayList<String> ips) {
+  this.ips = ips;
+ }
 
  public String getNick() {
   return nick;

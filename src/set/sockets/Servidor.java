@@ -8,7 +8,7 @@ import java.net.*;
 import java.util.ArrayList;
 
 public class Servidor {
- 
+
  public static void main(String[] args) {
 
   MarcoServidor mimarco = new MarcoServidor();
@@ -98,6 +98,8 @@ class MarcoServidor extends JFrame implements Runnable {
     } else {
      //---------------- Detecta Online----------------------
 
+     System.out.println("detecto online");
+
      InetAddress localizacion = miSocket.getInetAddress();
 
      String ipRemota = localizacion.getHostAddress();
@@ -106,8 +108,22 @@ class MarcoServidor extends JFrame implements Runnable {
 
      listaIp.add(ipRemota);
 
+     paquete_recibido.setips(listaIp);
+
      for (String z : listaIp) {
       System.out.println("Array: " + z);
+
+      Socket enviaDestinatario = new Socket(z, 9090);
+      //Crear en el servidor un objeto objectoutputstream para poder enviar el paquete a traves del socket
+      ObjectOutputStream paqueteReenvio = new ObjectOutputStream(enviaDestinatario.getOutputStream());
+      //se envia el paquete que se recibio
+      paqueteReenvio.writeObject(paquete_recibido);
+      //Se cierra el flujo de datos
+      paqueteReenvio.close();
+      //una vez que el paquete llega a su destino se cierra el socket
+      enviaDestinatario.close();
+      
+      miSocket.close();
      }
 
      //----------------------------------------------------
